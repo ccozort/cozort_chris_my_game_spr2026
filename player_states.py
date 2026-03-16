@@ -20,9 +20,9 @@ class PlayerIdleState(State):
         # print('updating player idle state...')
         self.player.image.fill(WHITE)
         keys = pg.key.get_pressed()
-        if keys[pg.K_k]:
-            print('transitioning to attack state...')
-            self.player.state_machine.transition("attack")
+        # if keys[pg.K_k]:
+        #     print('transitioning to attack state...')
+        #     self.player.state_machine.transition("attack")
             
 class PlayerMoveState(State):
     def __init__(self, player):

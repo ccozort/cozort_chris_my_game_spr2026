@@ -89,7 +89,6 @@ class Player(Sprite):
         if not self.jumping and not self.moving:
             if now - self.last_update > 350:
                 self.last_update = now
-                
                 self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
                 bottom = self.rect.bottom
                 self.image = self.standing_frames[self.current_frame]
@@ -111,6 +110,7 @@ class Player(Sprite):
         else: 
             self.state_machine.transition("idle")
             self.moving = False
+    
     def update(self):
         # print("player updating")
         self.state_machine.update()
@@ -119,6 +119,13 @@ class Player(Sprite):
         self.animate()
         self.rect.center = self.pos
         self.pos += self.vel * self.game.dt
+        pu_hits = pg.sprite.spritecollide(self, self.game.all_powerups, True)
+        if pu_hits:
+            if pu_hits[0].effect == "speed":
+                print("i got a speed powerup...")
+        m_hits = pg.sprite.spritecollide(self, self.game.all_mobs, False)
+        if m_hits:
+            print("i hit a mob")
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, 'x')
         self.hit_rect.centery = self.pos.y
@@ -128,7 +135,7 @@ class Player(Sprite):
 
 class Mob(Sprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites
+        self.groups = game.all_sprites, game.all_mobs
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
@@ -199,5 +206,19 @@ class Coin(Sprite):
         self.vel = vec(0,0)
         self.pos = vec(x,y) * TILESIZE
         self.rect.center = self.pos
+    def update(self):
+        pass
+
+class PowerUp(Sprite):
+    def __init__(self, game, x, y, effect):
+        self.groups = game.all_sprites, game.all_powerups
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image.fill(PURPLE)
+        self.rect = self.image.get_rect()
+        self.pos = vec(x,y) * TILESIZE
+        self.rect.center = self.pos
+        self.effect = effect
     def update(self):
         pass

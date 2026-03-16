@@ -63,6 +63,7 @@ class Game:
         self.all_sprites = pg.sprite.Group()
         self.all_walls = pg.sprite.Group()
         self.all_mobs = pg.sprite.Group()
+        self.all_powerups = pg.sprite.Group()
         self.all_projectiles = pg.sprite.Group()
         # self.player = Player(self, 15, 15)
         # self.mob = Mob(self, 4, 4) 
@@ -78,6 +79,8 @@ class Game:
                     Mob(self, col, row)
                 if tile == 'C':
                     Coin(self, col, row)
+                if tile == 'U':
+                    PowerUp(self, col, row, "speed")
         self.run()
 
     def run(self):

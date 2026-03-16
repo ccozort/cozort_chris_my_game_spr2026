@@ -1,6 +1,8 @@
 
 is_log_enabled: bool = False
 
+# comment below added by AI sends to dead link; this code was actually inspired by my transposition of a GODOT state machine implementation, which can be found here: https://www.youtube.com/watch?v=QM9yytr2YL4&t=391s
+# state machine implementation inspired by https://www.youtube.com/watch?v=HhLwqQYyHf8&t=1s&ab_channel=CodeMonkey
 class State():
     def __init__(self):
         pass
@@ -15,17 +17,21 @@ class State():
 
 class StateMachine():
     def __init__(self):
+        # set up state machine with empty states and a default state
         self.current_state = State()
+        # dictionary of states for easy access during transitions
         self.states = {}
         print(self.states)
     
+    # takes in a list of states to initialize the state machine with, and sets the first state in the list as the default state
     def start_machine(self, init_states = [State]):
-
+        # add states to state machine's state dictionary for easy access during transitions
         for state in init_states:
             print(state.get_state_name())
             self.states[state.get_state_name()] = state
             print(self.states)
 
+        # set current state to first state in list of states passed into start_machine function
         self.current_state = init_states[0]
 
         if is_log_enabled:
