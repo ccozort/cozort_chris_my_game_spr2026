@@ -46,25 +46,58 @@ class Game:
         self.running = True
         self.playing = True
         self.game_cooldown = Cooldown(5000)
+        self.levels = ['level1.txt', 'level2.txt', 'level3.txt']
+        self.current_level = 0
         print('game instantiated...')
         
     
     # a method is a function tied to a Class
 
-    def load_data(self):
+    def load_data(self, map):
         self.game_dir = path.dirname(__file__)
         self.img_dir = path.join(self.game_dir, 'images')
         self.wall_img = pg.image.load(path.join(self.img_dir, 'wall_art.png')).convert_alpha()
-        self.map = Map(path.join(self.game_dir, 'level1.txt'))
+        self.map = Map(path.join(self.game_dir, map))
         print('data is loaded')
 
+    def next_level(self, map):
+        for w in self.all_walls:
+            w.kill()
+        for m in self.all_mobs:
+            m.kill()
+        for c in self.all_coins:
+            c.kill()
+        for u in self.all_powerups:
+            u.kill()
+        self.player.kill()
+        self.load_data(map)
+        # self.player = Player(self, 15, 15)
+        # self.mob = Mob(self, 4, 4) 
+        # self.wall = Wall(self, WIDTH/2/TILESIZE, HEIGHT/2/TILESIZE)
+        for row, tiles in enumerate(self.map.data):
+            for col, tile, in enumerate(tiles):
+                if tile == '1':
+                    # call class constructor without assigning variable...when
+                    Wall(self, col, row)
+                if tile == 'P':
+                    self.player = Player(self, col, row)
+                if tile == 'M':
+                    Mob(self, col, row)
+                if tile == 'C':
+                    Coin(self, col, row)
+                if tile == 'U':
+                    PowerUp(self, col, row, "speed")
+        # self.run()
+
+
     def new(self):
-        self.load_data()
+        self.load_data(self.levels[0])
         self.all_sprites = pg.sprite.Group()
         self.all_walls = pg.sprite.Group()
         self.all_mobs = pg.sprite.Group()
         self.all_powerups = pg.sprite.Group()
         self.all_projectiles = pg.sprite.Group()
+        self.all_coins = pg.sprite.Group()
         # self.player = Player(self, 15, 15)
         # self.mob = Mob(self, 4, 4) 
         # self.wall = Wall(self, WIDTH/2/TILESIZE, HEIGHT/2/TILESIZE)
@@ -113,6 +146,9 @@ class Game:
 
     def update(self):
         self.all_sprites.update()
+        if len(self.all_powerups) < 1:
+            self.current_level+=1
+            self.next_level(self.levels[self.current_level])
         # print(len(self.all_projectiles))
 
     
