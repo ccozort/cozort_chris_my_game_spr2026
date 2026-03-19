@@ -59,6 +59,7 @@ class Player(Sprite):
         self.state_machine = StateMachine()
         self.states: Array[State] = [PlayerIdleState(self), PlayerMoveState(self)]
         self.state_machine.start_machine(self.states)
+        self.effect_cd = Cooldown(2000)
     def get_keys(self):
         self.vel = vec(0,0)
         keys = pg.key.get_pressed()
@@ -84,6 +85,9 @@ class Player(Sprite):
             frame.set_colorkey(BLACK)
         for frame in self.moving_frames:
             frame.set_colorkey(BLACK)
+    def effects_trail(self):
+        if self.effect_cd.ready():
+            EffectTrail(self.game, self.rect.x, self.rect.y)
     def animate(self):
         now = pg.time.get_ticks()
         if not self.jumping and not self.moving:
@@ -113,6 +117,7 @@ class Player(Sprite):
     
     def update(self):
         # print("player updating")
+        self.effects_trail()
         self.state_machine.update()
         self.get_keys()
         self.state_check()
@@ -222,3 +227,32 @@ class PowerUp(Sprite):
         self.effect = effect
     def update(self):
         pass
+
+
+class EffectTrail(Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self.groups = game.all_sprites
+        Sprite.__init__(self, self.groups)
+        self.image = pg.Surface((TILESIZE,TILESIZE), pg.SRCALPHA)
+        self.alpha = 255
+        self.image.fill((255,255,255,255))
+        self.rect = self.image.get_rect()
+        self.cd = Cooldown(10)
+        self.rect.x = x
+        self.rect.y = y
+        # coin behavior
+        self.scale_x = 32
+        self.scale_y = 32
+    def update(self):
+        if self.alpha <= 100:
+            self.kill()
+        self.image.fill((255,255,255,self.alpha))
+        
+        if self.cd.ready():
+            self.scale_x -=1
+            self.scale_y -=1
+            print("I'm ready")
+            self.alpha -= 5
+            new_image = pg.transform.scale(self.image, (self.scale_x, self.scale_y))
+            self.image = new_image
