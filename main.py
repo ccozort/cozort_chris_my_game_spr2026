@@ -38,6 +38,7 @@ vec = pg.math.Vector2
 class Game:
     def __init__(self):
         pg.init()
+        pg.mixer.init()
         # setting up pygame screen using tuple value for width height
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         pg.display.set_caption(TITLE)
@@ -56,7 +57,9 @@ class Game:
     def load_data(self, map):
         self.game_dir = path.dirname(__file__)
         self.img_dir = path.join(self.game_dir, 'images')
+        self.snd_dir = path.join(self.game_dir, 'sounds')
         self.wall_img = pg.image.load(path.join(self.img_dir, 'wall_art.png')).convert_alpha()
+        self.pickup_snd = pg.mixer.Sound(path.join(self.snd_dir, "pickup.wav"))
         self.map = Map(path.join(self.game_dir, map))
         print('data is loaded')
 
@@ -79,7 +82,7 @@ class Game:
                 if tile == '1':
                     # call class constructor without assigning variable...when
                     Wall(self, col, row)
-                if tile == 'P':
+                if tile == 'Pd':
                     self.player = Player(self, col, row)
                 if tile == 'M':
                     Mob(self, col, row)

@@ -126,6 +126,7 @@ class Player(Sprite):
         self.pos += self.vel * self.game.dt
         pu_hits = pg.sprite.spritecollide(self, self.game.all_powerups, True)
         if pu_hits:
+            self.game.pickup_snd.play()
             if pu_hits[0].effect == "speed":
                 print("i got a speed powerup...")
         m_hits = pg.sprite.spritecollide(self, self.game.all_mobs, False)
