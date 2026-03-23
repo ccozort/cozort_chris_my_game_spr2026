@@ -117,6 +117,8 @@ class Game:
                     Coin(self, col, row)
                 if tile == 'U':
                     PowerUp(self, col, row, "speed")
+        pg.mixer.music.load(path.join(self.snd_dir, "Juhani Junkala_Stage 1.ogg"))
+        pg.mixer.music.play(loops=-1)
         self.run()
 
     def run(self):
