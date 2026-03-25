@@ -51,7 +51,8 @@ class StateMachine():
         new_state: State = self.states.get(new_state_name)
         self.current_state_name = self.current_state.get_state_name()
         if new_state == None:
-            print("attempting to transition to non existent state")
+            if is_log_enabled:
+                print("attempting to transition to non existent state")
         elif new_state != self.current_state:
             self.current_state.exit()
             

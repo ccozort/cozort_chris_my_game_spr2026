@@ -115,6 +115,18 @@ class Player(Sprite):
             self.state_machine.transition("idle")
             self.moving = False
     
+    def collide_with_stuff(self, group, kill):
+        hits = pg.sprite.spritecollide(self, group, kill)
+        if hits:
+            if str(hits[0].__class__.__name__) == "Mob":
+                print("i collided with a mob")
+            if str(hits[0].__class__.__name__) == "Coin":
+                print("i collided with a coin")
+            if str(hits[0].__class__.__name__) == "PowerUp":
+                print("i collided with a Power Up")
+            if str(hits[0].__class__.__name__) == "Wall":
+                print("i collided with a Wall")
+
     def update(self):
         # print("player updating")
         self.effects_trail()
@@ -124,16 +136,10 @@ class Player(Sprite):
         self.animate()
         self.rect.center = self.pos
         self.pos += self.vel * self.game.dt
-        pu_coins = pg.sprite.spritecollide(self, self.game.all_coins, True)
-        pu_hits = pg.sprite.spritecollide(self, self.game.all_powerups, True)
-        if pu_hits:
-            print("pu_hits")
-            self.game.pickup_snd.play()
-            if pu_hits[0].effect == "speed":
-                print("i got a speed powerup...")
-        m_hits = pg.sprite.spritecollide(self, self.game.all_mobs, False)
-        if m_hits:
-            print("i hit a mob")
+        self.collide_with_stuff(self.game.all_mobs, True)
+        self.collide_with_stuff(self.game.all_coins, True)
+        self.collide_with_stuff(self.game.all_powerups, True)
+        self.collide_with_stuff(self.game.all_walls, True)
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, 'x')
         self.hit_rect.centery = self.pos.y
@@ -255,7 +261,6 @@ class EffectTrail(Sprite):
         if self.cd.ready():
             self.scale_x -=1
             self.scale_y -=1
-            print("I'm ready")
             self.alpha -= 5
             new_image = pg.transform.scale(self.image, (self.scale_x, self.scale_y))
             self.image = new_image
