@@ -124,8 +124,10 @@ class Player(Sprite):
         self.animate()
         self.rect.center = self.pos
         self.pos += self.vel * self.game.dt
+        pu_coins = pg.sprite.spritecollide(self, self.game.all_coins, True)
         pu_hits = pg.sprite.spritecollide(self, self.game.all_powerups, True)
         if pu_hits:
+            print("pu_hits")
             self.game.pickup_snd.play()
             if pu_hits[0].effect == "speed":
                 print("i got a speed powerup...")

@@ -49,6 +49,7 @@ class Game:
         self.game_cooldown = Cooldown(5000)
         self.levels = ['level1.txt', 'level2.txt', 'level3.txt']
         self.current_level = 0
+        self.paused = False
         print('game instantiated...')
         
     
@@ -125,7 +126,8 @@ class Game:
         while self.running:
             self.dt = self.clock.tick(FPS) / 1000
             self.events()
-            self.update()
+            if not self.paused:
+                self.update()
             self.draw()
 
     def events(self):
@@ -143,6 +145,12 @@ class Game:
             if event.type == pg.KEYUP:
                 if event.key == pg.K_k:
                     print("i can determine when keys are released")
+            if event.type == pg.KEYUP:
+                if event.key == pg.K_p:
+                    if self.paused:
+                        self.paused = False
+                    else:
+                        self.paused = True
     
 
 
@@ -175,8 +183,33 @@ class Game:
         text_rect.midtop = (x,y)
         self.screen.blit(text_surface, text_rect)
 
+    def show_start_screen(self):
+        # add music for start screen here...
+        self.screen.fill(BLACK)
+        self.draw_text("THE BEST GAME EVAH!", 48, WHITE, WIDTH/2, HEIGHT/2)
+        pg.display.flip()
+        self.wait_for_key()
+
+    def show_pause_screen(self):
+        pass
+    def wait_for_key(self):
+        waiting = True
+        while waiting:
+            self.clock.tick(FPS)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    waiting = False
+                    self.running = False
+                if event.type == pg.KEYUP:
+                    waiting = False
+                    
+
+
+
 if __name__ == "__main__":
     g = Game()
+
+g.show_start_screen()
 
 while g.running:
     g.new()
