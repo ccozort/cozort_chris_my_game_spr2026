@@ -60,6 +60,7 @@ class Player(Sprite):
         self.states: Array[State] = [PlayerIdleState(self), PlayerMoveState(self)]
         self.state_machine.start_machine(self.states)
         self.effect_cd = Cooldown(2000)
+        self.health = 100
     def get_keys(self):
         self.vel = vec(0,0)
         keys = pg.key.get_pressed()
@@ -122,10 +123,13 @@ class Player(Sprite):
                 print("i collided with a mob")
             if str(hits[0].__class__.__name__) == "Coin":
                 print("i collided with a coin")
+                self.game.pickup_snd.play()
             if str(hits[0].__class__.__name__) == "PowerUp":
                 print("i collided with a Power Up")
             if str(hits[0].__class__.__name__) == "Wall":
                 print("i collided with a Wall")
+                self.game.crunch_snd.play()
+
 
     def update(self):
         # print("player updating")

@@ -61,6 +61,7 @@ class Game:
         self.snd_dir = path.join(self.game_dir, 'sounds')
         self.wall_img = pg.image.load(path.join(self.img_dir, 'wall_art.png')).convert_alpha()
         self.pickup_snd = pg.mixer.Sound(path.join(self.snd_dir, "pickup.wav"))
+        self.crunch_snd = pg.mixer.Sound(path.join(self.snd_dir, "crunch.wav"))
         self.map = Map(path.join(self.game_dir, map))
         print('data is loaded')
 
@@ -173,6 +174,7 @@ class Game:
         self.draw_text(str(self.game_cooldown.ready()), 24, WHITE, WIDTH/2, HEIGHT/3)
         self.draw_text(str(self.player.pos), 24, WHITE, WIDTH/2, HEIGHT-TILESIZE*3)
         self.all_sprites.draw(self.screen)
+        draw_health_bar(self.screen, 10, 10, self.player.health)
         pg.display.flip()
 
     def draw_text(self, text, size, color, x, y):

@@ -49,3 +49,14 @@ class Cooldown:
         if current_time - self.start_time >= self.time:
             return True
         return False
+    
+def draw_health_bar(surf, x, y, pct):
+    if pct < 0:
+        pct = 0
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 10
+    fill = (pct / 100) * BAR_LENGTH
+    outline_rect = pg.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+    fill_rect = pg.Rect(x, y, fill, BAR_HEIGHT)
+    pg.draw.rect(surf, RED, fill_rect)
+    pg.draw.rect(surf, WHITE, outline_rect, 2)
