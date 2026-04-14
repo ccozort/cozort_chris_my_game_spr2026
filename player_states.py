@@ -43,4 +43,25 @@ class PlayerMoveState(State):
         # print('updating player move state...')
         self.player.image.fill(GREEN)
         keys = pg.key.get_pressed()
-  
+
+class PlayerDashState(State):
+    def __init__(self, player):
+        self.player = player
+        self.name = "dash"
+
+    def get_state_name(self):
+        return "dash"
+
+    def enter(self):
+        self.player.image.fill(WHITE)
+        self.player.dash_rect = pg.Rect(0, 0, TILESIZE-5, TILESIZE-5)
+        print('enter player move state')
+
+    def exit(self):
+        print('exit player move state')
+        self.player.dash_rect = pg.Rect(0,0,0,0)
+
+    def update(self):
+        # print('updating player move state...')
+        self.player.image.fill(GREEN)
+        keys = pg.key.get_pressed()

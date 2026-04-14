@@ -7,6 +7,9 @@ from settings import *
 from utils import *
 from  os import path
 from state_machine import *
+from random import randint
+from random import choice
+from math import floor
 
 vec = pg.math.Vector2
 
@@ -128,6 +131,8 @@ class Player(Sprite):
                 print("i collided with a Power Up")
             if str(hits[0].__class__.__name__) == "Wall":
                 print("i collided with a Wall")
+                particle = Particle(hits[0].rect.x, hits[0].rect.y, randint(5,10), randint(5,12))
+                self.game.all_sprites.add(particle)
                 self.game.crunch_snd.play()
 
 
@@ -159,20 +164,20 @@ class Mob(Sprite):
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image.fill(RED)
         self.rect = self.image.get_rect()
-        self.vel = vec(1,0)
+        self.vel = vec(0,0)
         self.pos = vec(x,y) * TILESIZE
-        self.speed = 10
+        self.speed = .01
     def update(self):
-        hits = pg.sprite.spritecollide(self, self.game.all_walls, True)
-        if hits:
-            self.speed -=1
-            self.new_rect = pg.Rect(self.pos.x, self.pos.y, 100, 100) 
-            self.rect = self.new_rect
-            self.image.fill(RED)
-        if self.rect.x > WIDTH or self.rect.x < 0:
-            self.speed *= -1
-            self.pos.y += TILESIZE
-        self.pos += self.speed * self.vel
+        # hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
+        # if hits:
+        #     self.speed -=1
+        #     # self.new_rect = pg.Rect(self.pos.x, self.pos.y, 100, 100) 
+        #     # self.rect = self.new_rect
+        #     # self.image.fill(RED)
+        # if self.rect.x > WIDTH or self.rect.x < 0:
+        #     self.speed *= -1
+        #     self.pos.y += TILESIZE
+        self.pos += self.vel + self.game.player.pos * self.game.dt
         self.rect.center = self.pos
 
 
@@ -241,6 +246,26 @@ class PowerUp(Sprite):
     def update(self):
         pass
 
+class Particle(Sprite):
+    def __init__(self, x, y, w, h):
+        Sprite.__init__(self)
+        self.image = pg.Surface((w, h))
+        self.image.fill(ORANGE)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speedx = randint(2,20)*choice([-1,1])
+        self.speedy = randint(2,20)*choice([-1,1])
+        self.countdown = Cooldown(5000)
+        self.countdown.event_time = floor(pg.time.get_ticks()/1000)
+        print('created a particle')
+    def update(self):
+        self.countdown.ticking()
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy+PLAYER_GRAV
+        if self.countdown.delta > 3:
+            print('time to die...')
+            self.kill()
 
 class EffectTrail(Sprite):
     def __init__(self, game, x, y):

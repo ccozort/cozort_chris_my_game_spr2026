@@ -103,6 +103,7 @@ class Game:
         self.all_powerups = pg.sprite.Group()
         self.all_projectiles = pg.sprite.Group()
         self.all_coins = pg.sprite.Group()
+        self.all_particles = pg.sprite.Group()
         # self.player = Player(self, 15, 15)
         # self.mob = Mob(self, 4, 4) 
         # self.wall = Wall(self, WIDTH/2/TILESIZE, HEIGHT/2/TILESIZE)

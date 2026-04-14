@@ -1,5 +1,6 @@
 import pygame as pg
 from settings import *
+from math import floor
 
 
 class Map:
@@ -38,6 +39,10 @@ class Cooldown:
         # allows us to set property for time until cooldown
         self.time = time
         # self.current_time = self.time
+    def ticking(self):
+        self.current_time = floor((pg.time.get_ticks())/1000)
+        self.delta = self.current_time - self.event_time
+        # print(self.delta)
     def start(self):
         self.start_time = pg.time.get_ticks()
 

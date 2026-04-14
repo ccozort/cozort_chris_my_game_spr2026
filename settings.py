@@ -9,6 +9,9 @@ TILESIZE = 32
 # player values
 PLAYER_SPEED = 280
 PLAYER_HIT_RECT = pg.Rect(0, 0, TILESIZE-5, TILESIZE-5)
+PLAYER_GRAV = 0.9    
+    
+
 
 # color values
 
@@ -20,4 +23,5 @@ GREEN = (0,255,0)
 YELLOW = (255,255,0)
 BLACK = (0,0,0)
 PURPLE = (255,0,255)
+ORANGE = (255, 98, 0)
 
