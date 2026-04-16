@@ -69,7 +69,9 @@ class Player(Sprite):
         keys = pg.key.get_pressed()
         if keys[pg.K_f]:
             print(' fired a projectile')
-            p = Projectile(self.game, self.rect.x, self.rect.y)
+            p = Projectile(self.game, self.pos.x, self.pos.y, vec(1,1))
+            p = Projectile(self.game, self.pos.x, self.pos.y, vec(0,-1))
+            p = Projectile(self.game, self.pos.x, self.pos.y, vec(-1,1))
         if keys[pg.K_a]:
             self.vel.x = -PLAYER_SPEED
         if keys[pg.K_d]:
@@ -199,23 +201,22 @@ class Wall(Sprite):
 
 
 class Projectile(Sprite):
-    def __init__(self, game, x, y):
+    def __init__(self, game, x, y, vel):
         self.groups = game.all_sprites, game.all_projectiles
         Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image = pg.Surface((TILESIZE/2, TILESIZE/2))
         self.image.fill(RED)
         self.rect = self.image.get_rect()
-        self.vel = vec(0,0)
-        self.pos = vec(x,y) * TILESIZE
-        self.speed = 10
+        self.vel = vel 
+        self.pos = vec(x,y)
+        self.speed = 500
+        self.rect.center = self.pos
         print("im a real projectile...")
     def update(self):
-        pass
-        # hits = pg.sprite.spritecollide(self, self.game.all_walls, True)
-        # # print(hits)
-        # self.pos += self.speed * self.vel
-        # self.rect.center = self.pos
+        self.pos += self.vel * self.speed * self.game.dt
+        self.rect.center = self.pos
+       
 
 
 class Coin(Sprite):
@@ -245,6 +246,7 @@ class PowerUp(Sprite):
         self.effect = effect
     def update(self):
         pass
+
 
 class Particle(Sprite):
     def __init__(self, x, y, w, h):
