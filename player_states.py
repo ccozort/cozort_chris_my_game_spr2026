@@ -1,5 +1,6 @@
 from state_machine import *
 from settings import *
+from utils import *
 
 class PlayerIdleState(State):
     def __init__(self, player):
@@ -33,7 +34,7 @@ class PlayerMoveState(State):
         return "move"
 
     def enter(self):
-        self.player.image.fill(WHITE)
+        self.player.image.fill(GREEN)
         print('enter player move state')
 
     def exit(self):
@@ -53,15 +54,21 @@ class PlayerDashState(State):
         return "dash"
 
     def enter(self):
-        self.player.image.fill(WHITE)
+        # start dash timer
+        # increase speed
+        self.dash_cd = Cooldown(25000)
+        self.player.image.fill(RED)
         self.player.dash_rect = pg.Rect(0, 0, TILESIZE-5, TILESIZE-5)
-        print('enter player move state')
+        print('enter player dash state')
 
     def exit(self):
-        print('exit player move state')
+        print('exit player dash state')
         self.player.dash_rect = pg.Rect(0,0,0,0)
 
     def update(self):
-        # print('updating player move state...')
-        self.player.image.fill(GREEN)
+        print('updating player dash state...')
+        # when start timer done, exit state
+        self.player.image.fill(RED)
+        if self.dash_cd.ready():
+            self.exit()
         keys = pg.key.get_pressed()

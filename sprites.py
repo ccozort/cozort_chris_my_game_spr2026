@@ -40,6 +40,12 @@ def collide_with_walls(sprite, group, dir):
             sprite.vel.y = 0
             sprite.hit_rect.centery = sprite.pos.y
 
+def collide_with_stuff(sprite, group, name, kill):
+        hits = pg.sprite.spritecollide(sprite, group, kill)
+        if hits:
+            if str(hits[0].__class__.__name__) == name:
+                return True
+
 class Player(Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites
@@ -60,7 +66,7 @@ class Player(Sprite):
         self.last_update = 0
         self.current_frame = 0
         self.state_machine = StateMachine()
-        self.states: Array[State] = [PlayerIdleState(self), PlayerMoveState(self)]
+        self.states: Array[State] = [PlayerIdleState(self), PlayerMoveState(self), PlayerDashState(self)]
         self.state_machine.start_machine(self.states)
         self.effect_cd = Cooldown(2000)
         self.health = 100
@@ -72,16 +78,24 @@ class Player(Sprite):
             p = Projectile(self.game, self.pos.x, self.pos.y, vec(1,1))
             p = Projectile(self.game, self.pos.x, self.pos.y, vec(0,-1))
             p = Projectile(self.game, self.pos.x, self.pos.y, vec(-1,1))
+        if keys[pg.K_LSHIFT]:
+            self.state_machine.transition("dash")
         if keys[pg.K_a]:
+            self.state_machine.transition("move")
             self.vel.x = -PLAYER_SPEED
         if keys[pg.K_d]:
+            self.state_machine.transition("move")
             self.vel.x = PLAYER_SPEED
         if keys[pg.K_w]:
+            self.state_machine.transition("move")
             self.vel.y = -PLAYER_SPEED
         if keys[pg.K_s]:
+            self.state_machine.transition("move")
             self.vel.y = PLAYER_SPEED
         if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.7071
+        # else:
+        #     # self.state_machine.transition("idle")
     def load_images(self):
         self.standing_frames = [self.spritesheet.get_image(0,0,TILESIZE, TILESIZE), 
                                 self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)]
@@ -113,13 +127,7 @@ class Player(Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.bottom = bottom
 
-    def state_check(self):
-        if self.vel != vec(0,0):
-            self.state_machine.transition("move")
-            self.moving = True
-        else: 
-            self.state_machine.transition("idle")
-            self.moving = False
+
     
     def collide_with_stuff(self, group, kill):
         hits = pg.sprite.spritecollide(self, group, kill)
@@ -136,11 +144,15 @@ class Player(Sprite):
                 particle = Particle(hits[0].rect.x, hits[0].rect.y, randint(5,10), randint(5,12))
                 self.game.all_sprites.add(particle)
                 self.game.crunch_snd.play()
-
+    
+    def state_check(self):
+        # if self.vel == vec(0,0) and self.state_machine.current_state != "dash":
+        #     self.state_machine.transition("idle")
+        pass
 
     def update(self):
         # print("player updating")
-        self.effects_trail()
+        # self.effects_trail()
         self.state_machine.update()
         self.get_keys()
         self.state_check()
@@ -214,6 +226,8 @@ class Projectile(Sprite):
         self.rect.center = self.pos
         print("im a real projectile...")
     def update(self):
+        if collide_with_stuff(self, self.game.all_walls, "Wall", True):
+            self.game.crunch_snd.play()
         self.pos += self.vel * self.speed * self.game.dt
         self.rect.center = self.pos
        
