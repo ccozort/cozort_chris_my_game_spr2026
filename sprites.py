@@ -70,32 +70,32 @@ class Player(Sprite):
         self.state_machine.start_machine(self.states)
         self.effect_cd = Cooldown(2000)
         self.health = 100
+        self.keys_enabled = True
+        self.speed = PLAYER_SPEED
     def get_keys(self):
         self.vel = vec(0,0)
-        keys = pg.key.get_pressed()
-        if keys[pg.K_f]:
-            print(' fired a projectile')
-            p = Projectile(self.game, self.pos.x, self.pos.y, vec(1,1))
-            p = Projectile(self.game, self.pos.x, self.pos.y, vec(0,-1))
-            p = Projectile(self.game, self.pos.x, self.pos.y, vec(-1,1))
-        if keys[pg.K_LSHIFT]:
-            self.state_machine.transition("dash")
-        if keys[pg.K_a]:
-            self.state_machine.transition("move")
-            self.vel.x = -PLAYER_SPEED
-        if keys[pg.K_d]:
-            self.state_machine.transition("move")
-            self.vel.x = PLAYER_SPEED
-        if keys[pg.K_w]:
-            self.state_machine.transition("move")
-            self.vel.y = -PLAYER_SPEED
-        if keys[pg.K_s]:
-            self.state_machine.transition("move")
-            self.vel.y = PLAYER_SPEED
-        if self.vel.x != 0 and self.vel.y != 0:
-            self.vel *= 0.7071
-        # else:
-        #     # self.state_machine.transition("idle")
+        if self.keys_enabled:
+            keys = pg.key.get_pressed()
+            if keys[pg.K_f]:
+                print(' fired a projectile')
+                p = Projectile(self.game, self.pos.x, self.pos.y, vec(1,1))
+                p = Projectile(self.game, self.pos.x, self.pos.y, vec(0,-1))
+                p = Projectile(self.game, self.pos.x, self.pos.y, vec(-1,1))
+            if keys[pg.K_LSHIFT]:
+                self.state_machine.transition("dash")
+
+            if keys[pg.K_a]:
+                self.vel.x = -self.speed
+            if keys[pg.K_d]:
+                self.vel.x = self.speed
+            if keys[pg.K_w]:
+                self.vel.y = -self.speed
+            if keys[pg.K_s]:
+                self.vel.y = self.speed
+            if self.vel.x != 0 and self.vel.y != 0:
+                self.vel *= 0.7071
+            # else:
+            #     # self.state_machine.transition("idle")
     def load_images(self):
         self.standing_frames = [self.spritesheet.get_image(0,0,TILESIZE, TILESIZE), 
                                 self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)]

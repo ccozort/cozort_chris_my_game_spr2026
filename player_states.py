@@ -43,12 +43,12 @@ class PlayerMoveState(State):
     def update(self):
         # print('updating player move state...')
         self.player.image.fill(GREEN)
-        keys = pg.key.get_pressed()
 
 class PlayerDashState(State):
     def __init__(self, player):
         self.player = player
         self.name = "dash"
+        self.dash_cd = Cooldown(500)
 
     def get_state_name(self):
         return "dash"
@@ -56,19 +56,24 @@ class PlayerDashState(State):
     def enter(self):
         # start dash timer
         # increase speed
-        self.dash_cd = Cooldown(25000)
+        # self.player.keys_enabled = False
+        self.dash_cd.start()
         self.player.image.fill(RED)
+        self.player.speed = PLAYER_SPEED * 3    
         self.player.dash_rect = pg.Rect(0, 0, TILESIZE-5, TILESIZE-5)
         print('enter player dash state')
 
     def exit(self):
         print('exit player dash state')
         self.player.dash_rect = pg.Rect(0,0,0,0)
-
+        self.player.speed = PLAYER_SPEED
+        # self.player.keys_enabled = True
     def update(self):
+        self.player.effects_trail()
         print('updating player dash state...')
         # when start timer done, exit state
         self.player.image.fill(RED)
         if self.dash_cd.ready():
-            self.exit()
+            print('dash done')
+            self.player.state_machine.transition("idle")
         keys = pg.key.get_pressed()
