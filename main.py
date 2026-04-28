@@ -54,7 +54,7 @@ class Game:
         
     
     # a method is a function tied to a Class
-
+ 
     def load_data(self, map):
         self.game_dir = path.dirname(__file__)
         self.img_dir = path.join(self.game_dir, 'images')
@@ -68,13 +68,13 @@ class Game:
     def next_level(self, map):
         for w in self.all_walls:
             w.kill()
-        for m in self.all_mobs:
+        for m in self.all_mobs: 
             m.kill()
         for c in self.all_coins:
             c.kill()
         for u in self.all_powerups:
             u.kill()
-        self.player.kill()
+        # self.player.kill()
         self.load_data(map)
         # self.player = Player(self, 15, 15)
         # self.mob = Mob(self, 4, 4) 
@@ -120,8 +120,8 @@ class Game:
                     Coin(self, col, row)
                 if tile == 'U':
                     PowerUp(self, col, row, "speed")
-        pg.mixer.music.load(path.join(self.snd_dir, "Juhani Junkala_Stage 1.ogg"))
-        pg.mixer.music.play(loops=-1)
+        # pg.mixer.music.load(path.join(self.snd_dir, "Juhani Junkala_Stage 1.ogg"))
+        # pg.mixer.music.play(loops=-1)
         self.run()
 
     def run(self):
@@ -147,12 +147,14 @@ class Game:
             if event.type == pg.KEYUP:
                 if event.key == pg.K_k:
                     print("i can determine when keys are released")
-            if event.type == pg.KEYUP:
+                if event.key == pg.K_LSHIFT:
+                    self.player.speed = PLAYER_SPEED
                 if event.key == pg.K_p:
                     if self.paused:
                         self.paused = False
                     else:
                         self.paused = True
+
     
 
 
@@ -161,16 +163,21 @@ class Game:
 
     def update(self):
         self.all_sprites.update()
+        
         if len(self.all_powerups) < 1:
-            self.current_level+=1
+            if self.current_level >= len(self.levels)-1:
+                self.current_level = 0
+            else:
+                self.current_level += 1
             self.next_level(self.levels[self.current_level])
-        # print(len(self.all_projectiles))
+
 
     
     def draw(self):
         self.screen.fill(BLUE)
         self.draw_text("Hello World", 24, WHITE, WIDTH/2, TILESIZE)
-        self.draw_text(str(self.dt), 24, WHITE, WIDTH/2, HEIGHT/4)
+        # self.draw_text(str(self.dt), 24, WHITE, WIDTH/2, HEIGHT/4)
+        self.draw_text("Frames per second: " + str(floor(1/self.dt) ), 24, WHITE, WIDTH/2, HEIGHT/4)
         # self.draw_text(str(self.game_cooldown.time), 24, WHITE, WIDTH/2, HEIGHT/.5)
         self.draw_text(str(self.game_cooldown.ready()), 24, WHITE, WIDTH/2, HEIGHT/3)
         self.draw_text(str(self.player.pos), 24, WHITE, WIDTH/2, HEIGHT-TILESIZE*3)

@@ -48,6 +48,7 @@ def collide_with_stuff(sprite, group, name, kill):
 
 class Player(Sprite):
     def __init__(self, game, x, y):
+        self._layer = 10  # Set layer before adding to groups
         self.groups = game.all_sprites
         Sprite.__init__(self, self.groups)
         self.game = game
@@ -82,7 +83,9 @@ class Player(Sprite):
                 p = Projectile(self.game, self.pos.x, self.pos.y, vec(0,-1))
                 p = Projectile(self.game, self.pos.x, self.pos.y, vec(-1,1))
             if keys[pg.K_LSHIFT]:
-                self.state_machine.transition("dash")
+                self.speed = PLAYER_DASH_SPEED
+                # self.state_machine.transition("dash")
+                # print(self.state_machine.current_state.get_state_name())
 
             if keys[pg.K_a]:
                 self.vel.x = -self.speed
@@ -141,13 +144,12 @@ class Player(Sprite):
                 print("i collided with a Power Up")
             if str(hits[0].__class__.__name__) == "Wall":
                 print("i collided with a Wall")
-                particle = Particle(hits[0].rect.x, hits[0].rect.y, randint(5,10), randint(5,12))
-                self.game.all_sprites.add(particle)
+                
                 self.game.crunch_snd.play()
     
     def state_check(self):
-        # if self.vel == vec(0,0) and self.state_machine.current_state != "dash":
-        #     self.state_machine.transition("idle")
+        if self.vel == vec(0,0) and self.state_machine.current_state != "dash":
+            self.state_machine.transition("idle")
         pass
 
     def update(self):
@@ -162,7 +164,10 @@ class Player(Sprite):
         self.collide_with_stuff(self.game.all_mobs, True)
         self.collide_with_stuff(self.game.all_coins, True)
         self.collide_with_stuff(self.game.all_powerups, True)
-        self.collide_with_stuff(self.game.all_walls, True)
+        if collide_with_stuff(self, self.game.all_walls, "Wall", True):
+            # print("collided with wall")
+            for p in range(100):
+                particle = Particle(self.game, self.rect.x, self.rect.y, randint(5,10), randint(5,12))
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, 'x')
         self.hit_rect.centery = self.pos.y
@@ -227,7 +232,9 @@ class Projectile(Sprite):
         print("im a real projectile...")
     def update(self):
         if collide_with_stuff(self, self.game.all_walls, "Wall", True):
-            self.game.crunch_snd.play()
+            print("collided with wall")
+            for p in range(100):
+                particle = Particle(self.game, self.rect.x, self.rect.y, randint(5,10), randint(5,12))
         self.pos += self.vel * self.speed * self.game.dt
         self.rect.center = self.pos
        
@@ -261,10 +268,12 @@ class PowerUp(Sprite):
     def update(self):
         pass
 
-
+# look into pooling for particles and projectiles to optimize performance instead of killing and creating new ones
 class Particle(Sprite):
-    def __init__(self, x, y, w, h):
-        Sprite.__init__(self)
+    def __init__(self, game, x, y, w, h):
+        self.groups = game.all_sprites
+        Sprite.__init__(self, self.groups)
+        self.game = game
         self.image = pg.Surface((w, h))
         self.image.fill(ORANGE)
         self.rect = self.image.get_rect()
@@ -274,13 +283,28 @@ class Particle(Sprite):
         self.speedy = randint(2,20)*choice([-1,1])
         self.countdown = Cooldown(5000)
         self.countdown.event_time = floor(pg.time.get_ticks()/1000)
-        print('created a particle')
+        self.active = True
+
+    def reset(self, x, y):
+        self.rect.x = x
+        self.rect.y = y
+        self.active = True
+    def deactivate(self):
+        self.active = False
+    def return_to_pool(self):
+        self.deactivate()
+        # add to pool logic here
     def update(self):
         self.countdown.ticking()
         self.rect.x += self.speedx
         self.rect.y += self.speedy+PLAYER_GRAV
+        if collide_with_stuff(self, self.game.all_walls, "Wall", True):
+            # print("collided with wall")
+            for p in range(35):
+                particle = Particle(self.game, self.rect.x, self.rect.y, randint(5,10), randint(5,12))
         if self.countdown.delta > 3:
-            print('time to die...')
+            # print('time to die...')
+            self.deactivate()
             self.kill()
 
 class EffectTrail(Sprite):
@@ -301,6 +325,10 @@ class EffectTrail(Sprite):
     def update(self):
         if self.alpha <= 100:
             self.kill()
+        try:
+            self.image.set_alpha(self.alpha)
+        except Exception as e:
+            print(f"alpha is out of range: {e} with value {self.alpha}")
         self.image.fill((255,255,255,self.alpha))
         
         if self.cd.ready():
