@@ -180,12 +180,48 @@ class Mob(Sprite):
         self.groups = game.all_sprites, game.all_mobs
         Sprite.__init__(self, self.groups)
         self.game = game
+        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "sprite_sheet.png"))
+        self.load_images()
         self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(RED)
+        self.image = self.spritesheet.get_image(0,0,TILESIZE,TILESIZE)
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.vel = vec(0,0)
         self.pos = vec(x,y) * TILESIZE
         self.speed = .01
+        self.jumping = False
+        self.moving = False
+        self.last_update = 0
+        self.current_frame = 0
+        
+    def load_images(self):
+        self.standing_frames = [self.spritesheet.get_image(0,0,TILESIZE, TILESIZE), 
+                                self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)]
+        self.moving_frames = [self.spritesheet.get_image(TILESIZE*2,0,TILESIZE, TILESIZE), 
+                                self.spritesheet.get_image(TILESIZE*3,0,TILESIZE, TILESIZE)]
+        for frame in self.standing_frames:
+            frame.set_colorkey(BLACK)
+        for frame in self.moving_frames:
+            frame.set_colorkey(BLACK)
+    def animate(self):
+        now = pg.time.get_ticks()
+        if not self.jumping and not self.moving:
+            if now - self.last_update > 350:
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
+                bottom = self.rect.bottom
+                self.image = self.standing_frames[self.current_frame]
+                self.rect = self.image.get_rect()
+                self.rect.bottom = bottom
+        elif self.moving:
+            if now - self.last_update > 350:
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % len(self.moving_frames)
+                bottom = self.rect.bottom
+                self.image = self.moving_frames[self.current_frame]
+                self.rect = self.image.get_rect()
+                self.rect.bottom = bottom
+    
     def update(self):
         # hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
         # if hits:
@@ -196,6 +232,7 @@ class Mob(Sprite):
         # if self.rect.x > WIDTH or self.rect.x < 0:
         #     self.speed *= -1
         #     self.pos.y += TILESIZE
+        self.animate()
         self.pos += self.vel + self.game.player.pos * self.game.dt
         self.rect.center = self.pos
 
